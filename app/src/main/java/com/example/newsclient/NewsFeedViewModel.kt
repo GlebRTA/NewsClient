@@ -4,11 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.newsclient.domain.FeedPost
-import com.example.newsclient.domain.PostComment
 import com.example.newsclient.domain.StatisticItem
-import com.example.newsclient.ui.HomeScreenState
+import com.example.newsclient.ui.NewsFeedScreenState
 
-class MainViewModel : ViewModel() {
+class NewsFeedViewModel : ViewModel() {
 
     private val sourceList = mutableListOf<FeedPost>().apply {
         repeat(5) {
@@ -18,33 +17,14 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    private val comments = mutableListOf<PostComment>().apply {
-        repeat(15) {
-            add(
-                PostComment(id = it)
-            )
-        }
-    }
+    private val initialState = NewsFeedScreenState.Posts(posts = sourceList)
 
-    private val initialState = HomeScreenState.Posts(posts = sourceList)
-
-    private val _screenState = MutableLiveData<HomeScreenState>(initialState)
-    val screenState: LiveData<HomeScreenState> = _screenState
-
-    private var stateSaver: HomeScreenState? = initialState
-    fun showComments(feedPost: FeedPost) {
-        stateSaver = _screenState.value
-        _screenState.value = HomeScreenState.Comments(feedPost = feedPost, comments = comments)
-    }
-
-
-    fun closeComments() {
-        _screenState.value = stateSaver
-    }
+    private val _screenState = MutableLiveData<NewsFeedScreenState>(initialState)
+    val screenState: LiveData<NewsFeedScreenState> = _screenState
 
     fun changePostStats(feedPost: FeedPost, item: StatisticItem) {
         val currentState = screenState.value
-        if (currentState !is HomeScreenState.Posts) return
+        if (currentState !is NewsFeedScreenState.Posts) return
 
         val oldPosts = currentState.posts.toMutableList()
         val newFeedPost = updateCount(feedPost, item)
@@ -57,7 +37,7 @@ class MainViewModel : ViewModel() {
                 }
             }
         }
-        _screenState.value = HomeScreenState.Posts(posts = newPosts)
+        _screenState.value = NewsFeedScreenState.Posts(posts = newPosts)
     }
 
     private fun updateCount(feedPost: FeedPost, item: StatisticItem): FeedPost {
@@ -76,11 +56,11 @@ class MainViewModel : ViewModel() {
 
     fun delete(item: FeedPost) {
         val currentState = screenState.value
-        if (currentState !is HomeScreenState.Posts) return
+        if (currentState !is NewsFeedScreenState.Posts) return
 
         val modifiedList = currentState.posts.toMutableList()
         modifiedList.remove(item)
-        _screenState.value = HomeScreenState.Posts(posts = modifiedList)
+        _screenState.value = NewsFeedScreenState.Posts(posts = modifiedList)
     }
 
 }

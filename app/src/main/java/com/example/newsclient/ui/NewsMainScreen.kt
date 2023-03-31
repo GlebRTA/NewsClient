@@ -1,24 +1,22 @@
 package com.example.newsclient.ui.theme
 
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
-import com.example.newsclient.MainViewModel
+import com.example.newsclient.domain.FeedPost
 import com.example.newsclient.navigation.AppNavGraph
-import com.example.newsclient.navigation.NavigationState
 import com.example.newsclient.navigation.rememberNavigationState
+import com.example.newsclient.ui.CommentsScreen
 import com.example.newsclient.ui.HomeScreen
 import com.example.newsclient.ui.NavigationItem
 
 @Composable
-fun MainScreen(
-    viewModel: MainViewModel
-) {
+fun MainScreen() {
     val navigationState = rememberNavigationState()
+    val commentsToPost: MutableState<FeedPost?> = remember {
+        mutableStateOf(null)
+    }
 
     Scaffold(
         bottomBar = {
@@ -56,10 +54,21 @@ fun MainScreen(
         AppNavGraph(
             navHostController = navigationState.navHostController,
             homeScreenContent = {
-                HomeScreen(
-                    viewModel = viewModel,
-                    paddingValues = paddingValues
-                )
+                if (commentsToPost.value == null) {
+                    HomeScreen(
+                        paddingValues = paddingValues,
+                        onCommentClickListener = {
+                            commentsToPost.value = it
+                        }
+                    )
+                } else {
+                    CommentsScreen(
+                        onBackListener = {
+                            commentsToPost.value = null
+                        },
+                        feedPost = commentsToPost.value!!
+                    )
+                }
             },
             favoriteScreenContent = { Text(text = "Favorites") },
             profileScreenContent = { Text(text = "Profile") }
