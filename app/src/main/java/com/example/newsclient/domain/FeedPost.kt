@@ -7,7 +7,7 @@ data class FeedPost(
     val communityName: String = "KotlinDevs",
     val publicationDate: String = "14:00",
     val avatarResId: Int = R.drawable.ic_avatar,
-    val contentText: String = "habhdbas kjbbakj qwkj qjik jnwqjnakjn jnklnkjakljb akb   wbjksd",
+    val contentText: String = "Content TExt",
     val postImgId: Int = R.drawable.ic_meme,
     val statistics: List<StatisticItem> = listOf(
         StatisticItem(type = StatisticType.VIEWS, count = 966),

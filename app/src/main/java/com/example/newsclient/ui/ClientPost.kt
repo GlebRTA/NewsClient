@@ -103,7 +103,6 @@ private fun ClientPostHeader(
 private fun ClientPostBody(
     feedPost: FeedPost
 ) {
-
     Column(
         modifier = Modifier
             .padding(8.dp)

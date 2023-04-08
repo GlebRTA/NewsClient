@@ -14,28 +14,54 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.newsclient.MainViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.newsclient.NewsFeedViewModel
+import com.example.newsclient.domain.FeedPost
+
+
+@Composable
+fun HomeScreen(
+    paddingValues: PaddingValues,
+    onCommentClickListener: (FeedPost) -> Unit
+) {
+    val viewModel: NewsFeedViewModel = viewModel()
+
+    val screenState = viewModel.screenState.observeAsState(NewsFeedScreenState.Initial)
+
+    when (val state = screenState.value) {
+        is NewsFeedScreenState.Posts -> {
+            FeedPosts(
+                viewModel = viewModel,
+                paddingValues = paddingValues,
+                posts = state.posts,
+                onCommentClickListener = onCommentClickListener
+            )
+        }
+        is NewsFeedScreenState.Initial -> {  }
+    }
+
+}
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun HomeScreen(
-    viewModel: MainViewModel,
-    paddingValues: PaddingValues
+private fun FeedPosts(
+    viewModel: NewsFeedViewModel,
+    paddingValues: PaddingValues,
+    posts: List<FeedPost>,
+    onCommentClickListener: (FeedPost) -> Unit
 ) {
-    val feedPostList = viewModel.feedPosts.observeAsState(listOf())
     LazyColumn(
-        modifier = androidx.compose.ui.Modifier.padding(paddingValues),
+        modifier = Modifier.padding(paddingValues),
         contentPadding = PaddingValues(
             top = 16.dp,
             start = 8.dp,
             end = 8.dp,
-            bottom = 72.dp
+            bottom = 16.dp
         ),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(feedPostList.value, key = { it.id }) { post ->
+        items(items = posts, key = { it.id }) { post ->
             val dismissState = rememberDismissState()
-
             if (dismissState.isDismissed(DismissDirection.EndToStart)) {
                 viewModel.delete(post)
             }
@@ -63,10 +89,7 @@ fun HomeScreen(
                         )
                     },
                     onCommentsClickListener = {
-                        viewModel.changePostStats(
-                            post,
-                            it
-                        )
+                        onCommentClickListener(post)
                     },
                     onLikeClickListener = {
                         viewModel.changePostStats(
